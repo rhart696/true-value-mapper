@@ -29,6 +29,7 @@
             max-width: 1200px;
             width: 100%;
             padding: 30px;
+            position: relative;
         }
 
         .header {
@@ -236,6 +237,170 @@
             font-size: 13px !important;
         }
 
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            animation: fadeIn 0.3s;
+        }
+
+        .modal.show {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            position: relative;
+            animation: slideIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideIn {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .modal-close {
+            position: absolute;
+            right: 20px;
+            top: 20px;
+            font-size: 28px;
+            cursor: pointer;
+            color: #999;
+            line-height: 1;
+            transition: color 0.3s;
+        }
+
+        .modal-close:hover {
+            color: #333;
+        }
+
+        .modal h2 {
+            color: #2E4A8B;
+            margin-bottom: 20px;
+        }
+
+        .modal h3 {
+            color: #2E4A8B;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+
+        .help-button {
+            position: absolute;
+            right: 20px;
+            top: 20px;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #2E4A8B;
+            color: white;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .help-button:hover {
+            background: #1e3460;
+            transform: scale(1.1);
+        }
+
+        .demo-button {
+            background: #8BC34A;
+            color: white;
+        }
+
+        .demo-button:hover {
+            background: #7CB342;
+        }
+
+        .welcome-slides {
+            position: relative;
+        }
+
+        .slide {
+            display: none;
+        }
+
+        .slide.active {
+            display: block;
+        }
+
+        .slide-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .slide-dots {
+            display: flex;
+            gap: 8px;
+        }
+
+        .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #d0d0d0;
+            transition: background 0.3s;
+        }
+
+        .dot.active {
+            background: #2E4A8B;
+        }
+
+        .checkbox-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 15px;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .feature-card {
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 3px solid #00A8CC;
+        }
+
+        .feature-card h4 {
+            color: #2E4A8B;
+            margin-bottom: 5px;
+        }
+
         @media (max-width: 768px) {
             .container {
                 padding: 20px;
@@ -262,6 +427,7 @@
 </head>
 <body>
     <div class="container">
+        <button class="help-button" onclick="showHelpModal()" title="Help">?</button>
         <div class="header">
             <img src="background-assets/ProActive-ReSolutions-full-logo.png" alt="ProActive ReSolutions" class="logo">
             <h1>ProActive True Valence Mapper</h1>
@@ -281,6 +447,7 @@
             <div class="control-group">
                 <button onclick="exportToJSON()">Export JSON</button>
                 <button onclick="importJSON()">Import JSON</button>
+                <button class="demo-button" onclick="loadDemoData()">Load Example</button>
             </div>
         </div>
 
@@ -359,6 +526,11 @@
 
         // Initialize
         document.addEventListener('DOMContentLoaded', function() {
+            // Check if first visit
+            if (!localStorage.getItem('hideWelcome')) {
+                showWelcomeModal();
+            }
+
             // Try to load saved map
             loadFromLocalStorage();
             updateNodeCount();
@@ -367,6 +539,20 @@
             document.getElementById('personName').addEventListener('keypress', function(e) {
                 if (e.key === 'Enter') {
                     addPerson();
+                }
+            });
+
+            // Add keyboard shortcut for help
+            document.addEventListener('keypress', function(e) {
+                if (e.key === '?') {
+                    showHelpModal();
+                }
+            });
+
+            // Add escape key to close modals
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    closeAllModals();
                 }
             });
         });
@@ -647,7 +833,272 @@
 
             input.click();
         }
+
+        // Modal Functions
+        let currentSlideIndex = 1;
+
+        function showWelcomeModal() {
+            document.getElementById('welcomeModal').classList.add('show');
+            currentSlideIndex = 1;
+            showSlide(currentSlideIndex);
+        }
+
+        function closeWelcomeModal() {
+            document.getElementById('welcomeModal').classList.remove('show');
+        }
+
+        function showHelpModal() {
+            document.getElementById('helpModal').classList.add('show');
+        }
+
+        function closeHelpModal() {
+            document.getElementById('helpModal').classList.remove('show');
+        }
+
+        function closeAllModals() {
+            closeWelcomeModal();
+            closeHelpModal();
+        }
+
+        function changeSlide(n) {
+            showSlide(currentSlideIndex += n);
+        }
+
+        function currentSlide(n) {
+            showSlide(currentSlideIndex = n);
+        }
+
+        function showSlide(n) {
+            const slides = document.getElementsByClassName('slide');
+            const dots = document.getElementsByClassName('dot');
+
+            if (n > slides.length) currentSlideIndex = 1;
+            if (n < 1) currentSlideIndex = slides.length;
+
+            for (let i = 0; i < slides.length; i++) {
+                slides[i].classList.remove('active');
+            }
+
+            for (let i = 0; i < dots.length; i++) {
+                dots[i].classList.remove('active');
+            }
+
+            slides[currentSlideIndex - 1].classList.add('active');
+            dots[currentSlideIndex - 1].classList.add('active');
+
+            // Update navigation buttons
+            document.getElementById('prevBtn').style.visibility = currentSlideIndex === 1 ? 'hidden' : 'visible';
+            document.getElementById('nextBtn').textContent = currentSlideIndex === slides.length ? 'Get Started' : 'Next';
+
+            if (currentSlideIndex === slides.length) {
+                document.getElementById('nextBtn').onclick = function() {
+                    closeWelcomeModal();
+                };
+            } else {
+                document.getElementById('nextBtn').onclick = function() {
+                    changeSlide(1);
+                };
+            }
+        }
+
+        function updateWelcomePreference() {
+            const checkbox = document.getElementById('dontShowAgain');
+            if (checkbox.checked) {
+                localStorage.setItem('hideWelcome', 'true');
+            } else {
+                localStorage.removeItem('hideWelcome');
+            }
+        }
+
+        // Demo Mode Function
+        function loadDemoData() {
+            // Confirm before loading demo
+            if (relationships.length > 0) {
+                if (!confirm('This will replace your current map with sample data. Continue?')) {
+                    return;
+                }
+            }
+
+            // Clear existing
+            relationships = [];
+            trustScores = {};
+
+            // Add demo relationships
+            const demoNames = ['Sarah (Partner)', 'Mom', 'Best Friend Alex', 'Boss Jennifer', 'Brother Mike', 'Therapist Dr. Lee'];
+
+            demoNames.forEach(name => {
+                const person = {
+                    id: Date.now() + Math.random(),
+                    name: name
+                };
+                relationships.push(person);
+
+                // Set demo trust scores
+                trustScores[person.id] = {
+                    outward: 0,
+                    inward: 0
+                };
+            });
+
+            // Set specific demo scores to show patterns
+            if (relationships[0]) trustScores[relationships[0].id] = { outward: 1, inward: 1 }; // Partner - high both ways
+            if (relationships[1]) trustScores[relationships[1].id] = { outward: 1, inward: 2 }; // Mom - asymmetric
+            if (relationships[2]) trustScores[relationships[2].id] = { outward: 1, inward: 1 }; // Best Friend - high both
+            if (relationships[3]) trustScores[relationships[3].id] = { outward: 2, inward: 3 }; // Boss - professional distance
+            if (relationships[4]) trustScores[relationships[4].id] = { outward: 2, inward: 2 }; // Brother - medium both
+            if (relationships[5]) trustScores[relationships[5].id] = { outward: 1, inward: 3 }; // Therapist - one-way professional
+
+            renderVisualization();
+            updateNodeCount();
+            saveToLocalStorage();
+
+            // Show a tip
+            alert('Demo loaded! Click any arrow to see how trust scoring works. Notice the asymmetric patterns in some relationships.');
+        }
     </script>
+
+    <!-- Welcome Modal -->
+    <div id="welcomeModal" class="modal">
+        <div class="modal-content">
+            <span class="modal-close" onclick="closeWelcomeModal()">&times;</span>
+            <div class="welcome-slides">
+                <!-- Slide 1: What -->
+                <div class="slide active">
+                    <h2>Welcome to ProActive True Valence Mapper</h2>
+                    <p>A powerful visualization tool for understanding trust dynamics in your relationships.</p>
+                    <br>
+                    <h3>What is a Trust Valence Map?</h3>
+                    <p>It's a visual representation showing bidirectional trust flow between you and the people in your life. Each relationship has two arrows:</p>
+                    <ul style="margin: 15px 0; padding-left: 20px;">
+                        <li><strong>Outward Arrow (Solid):</strong> Your confidence in going to them with problems</li>
+                        <li><strong>Inward Arrow (Dashed):</strong> Your perception of their willingness to come to you</li>
+                    </ul>
+                </div>
+
+                <!-- Slide 2: Why -->
+                <div class="slide">
+                    <h2>Why Map Trust Flow?</h2>
+                    <div class="feature-grid">
+                        <div class="feature-card">
+                            <h4>Identify Patterns</h4>
+                            <p>See imbalances in your relationships at a glance</p>
+                        </div>
+                        <div class="feature-card">
+                            <h4>Track Progress</h4>
+                            <p>Monitor how trust evolves over time</p>
+                        </div>
+                        <div class="feature-card">
+                            <h4>Facilitate Conversations</h4>
+                            <p>Use visual aids to discuss trust with coaches or therapists</p>
+                        </div>
+                        <div class="feature-card">
+                            <h4>Build Awareness</h4>
+                            <p>Understand where to invest emotional energy</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Slide 3: How -->
+                <div class="slide">
+                    <h2>How to Use This Tool</h2>
+                    <ol style="line-height: 1.8; padding-left: 20px;">
+                        <li><strong>Add People:</strong> Enter up to 8 names from your relationship network</li>
+                        <li><strong>Score Trust:</strong> Click arrows to cycle through trust levels:
+                            <ul style="margin: 10px 0;">
+                                <li>🟢 Green = High Trust (Score 1)</li>
+                                <li>🟡 Yellow = Medium Trust (Score 2)</li>
+                                <li>🔴 Red = Low/No Trust (Score 3)</li>
+                                <li>⚪ Gray = Not Yet Scored</li>
+                            </ul>
+                        </li>
+                        <li><strong>Save Your Work:</strong> Use Export JSON to backup or Import to restore</li>
+                        <li><strong>Try Demo:</strong> Click "Load Example" to see a sample map</li>
+                    </ol>
+                </div>
+            </div>
+
+            <div class="slide-nav">
+                <button id="prevBtn" onclick="changeSlide(-1)" style="visibility: hidden;">Previous</button>
+                <div class="slide-dots">
+                    <span class="dot active" onclick="currentSlide(1)"></span>
+                    <span class="dot" onclick="currentSlide(2)"></span>
+                    <span class="dot" onclick="currentSlide(3)"></span>
+                </div>
+                <button id="nextBtn" onclick="changeSlide(1)">Next</button>
+            </div>
+
+            <div class="checkbox-container">
+                <input type="checkbox" id="dontShowAgain" onchange="updateWelcomePreference()">
+                <label for="dontShowAgain">Don't show this again</label>
+            </div>
+        </div>
+    </div>
+
+    <!-- Help Modal -->
+    <div id="helpModal" class="modal">
+        <div class="modal-content">
+            <span class="modal-close" onclick="closeHelpModal()">&times;</span>
+            <h2>Help & Documentation</h2>
+
+            <h3>Quick Start Guide</h3>
+            <ol style="line-height: 1.8; padding-left: 20px;">
+                <li>Add people by typing their name and clicking "Add Person"</li>
+                <li>Click the arrows connecting "You" to each person</li>
+                <li>Each click cycles the trust score (Gray → Green → Yellow → Red → Gray)</li>
+                <li>Save your map locally or export as JSON for backup</li>
+            </ol>
+
+            <h3>For Coaches & Facilitators</h3>
+            <p><strong>Suggested Questions to Ask Clients:</strong></p>
+            <ul style="margin: 15px 0; padding-left: 20px;">
+                <li>"Who would you turn to first if you had a problem?"</li>
+                <li>"Who do you think would come to you with their challenges?"</li>
+                <li>"Where do you see asymmetry in these relationships?"</li>
+                <li>"What would need to change to strengthen these connections?"</li>
+            </ul>
+
+            <h3>Privacy & Data Security</h3>
+            <div style="background: #e8f5e9; padding: 15px; border-radius: 8px; margin: 15px 0;">
+                <p><strong>🔒 Your data is private and secure:</strong></p>
+                <ul style="margin: 10px 0; padding-left: 20px;">
+                    <li>All data stored locally in your browser</li>
+                    <li>No account or login required</li>
+                    <li>Export creates offline backup files</li>
+                    <li>You control who sees your maps</li>
+                </ul>
+            </div>
+
+            <h3>Keyboard Shortcuts</h3>
+            <ul style="padding-left: 20px;">
+                <li><kbd>Enter</kbd> - Add person (when typing name)</li>
+                <li><kbd>?</kbd> - Open this help menu</li>
+                <li><kbd>Esc</kbd> - Close modals</li>
+            </ul>
+
+            <h3>Features</h3>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h4>Save/Load</h4>
+                    <p>Stores in browser memory</p>
+                </div>
+                <div class="feature-card">
+                    <h4>Export/Import</h4>
+                    <p>JSON backup files</p>
+                </div>
+                <div class="feature-card">
+                    <h4>Demo Mode</h4>
+                    <p>Try with sample data</p>
+                </div>
+                <div class="feature-card">
+                    <h4>8 Relationships</h4>
+                    <p>Optimal for clarity</p>
+                </div>
+            </div>
+
+            <h3>About ProActive ReSolutions</h3>
+            <p>ProActive ReSolutions Inc. specializes in relationship coaching and team dynamics visualization tools. This mapper helps individuals and organizations understand trust patterns for improved communication and collaboration.</p>
+        </div>
+    </div>
 
     <footer class="footer">
         <p>&copy; 2024 ProActive ReSolutions Inc. All rights reserved.</p>
