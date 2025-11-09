@@ -405,16 +405,30 @@
             const midX = (CENTER_X + x) / 2;
             const midY = (CENTER_Y + y) / 2;
 
-            // Perpendicular offset for curve
+            // Perpendicular offset for curve - increased for more separation
             const dx = x - CENTER_X;
             const dy = y - CENTER_Y;
-            const perpX = -dy / 10;
-            const perpY = dx / 10;
+            const perpX = -dy / 5;  // Increased from /10 to /5 for more separation
+            const perpY = dx / 5;   // Increased from /10 to /5 for more separation
+
+            // Normalize the direction vector
+            const length = Math.sqrt(dx * dx + dy * dy);
+            const normalX = dx / length;
+            const normalY = dy / length;
+
+            // Start and end points for arrows (adjusted to not overlap at nodes)
+            const startRadius = 45;  // Start 45px from center (just outside center node)
+            const endRadius = 35;    // End 35px from target (just outside target node)
+
+            const startX = CENTER_X + normalX * startRadius;
+            const startY = CENTER_Y + normalY * startRadius;
+            const endX = CENTER_X + normalX * (length - endRadius);
+            const endY = CENTER_Y + normalY * (length - endRadius);
 
             // Outward arrow (You -> Them)
             const outwardScore = trustScores[person.id].outward;
             const outwardPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-            const outwardD = `M ${CENTER_X + dx/5} ${CENTER_Y + dy/5} Q ${midX - perpX} ${midY - perpY} ${x - dx/5} ${y - dy/5}`;
+            const outwardD = `M ${startX} ${startY} Q ${midX - perpX} ${midY - perpY} ${endX} ${endY}`;
             outwardPath.setAttribute('d', outwardD);
             outwardPath.setAttribute('class', `arrow-path score-${outwardScore}`);
             outwardPath.setAttribute('marker-end', `url(#arrow-${outwardScore})`);
@@ -425,7 +439,7 @@
             // Inward arrow (Them -> You)
             const inwardScore = trustScores[person.id].inward;
             const inwardPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-            const inwardD = `M ${x - dx/5} ${y - dy/5} Q ${midX + perpX} ${midY + perpY} ${CENTER_X + dx/5} ${CENTER_Y + dy/5}`;
+            const inwardD = `M ${endX} ${endY} Q ${midX + perpX} ${midY + perpY} ${startX} ${startY}`;
             inwardPath.setAttribute('d', inwardD);
             inwardPath.setAttribute('class', `arrow-path score-${inwardScore}`);
             inwardPath.setAttribute('marker-end', `url(#arrow-${inwardScore})`);
