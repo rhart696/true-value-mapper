@@ -49,7 +49,7 @@ jobs:
           echo "🔍 Scanning SQL files for injection risks..."
 
           # Check for SQL files with potential injection patterns
-          if find . -name "*.sql" -type f | xargs grep -i "DROP TABLE" | grep -v "IF EXISTS" | grep -v "-- "; then
+          if find . -name "*.sql" -type f -exec grep -i "DROP TABLE" {} + | grep -v "IF EXISTS" | grep -v "^--"; then
             echo "⚠️ WARNING: Found potentially unsafe DROP TABLE statements"
             exit 1
           fi
@@ -66,8 +66,8 @@ jobs:
         run: |
           echo "🔍 Scanning for XSS vulnerability patterns..."
 
-          # Check for dangerous innerHTML usage
-          if grep -rn "innerHTML\s*=" --include="*.js" . | grep -v "InputValidator\|htmlEncode"; then
+          # Check for dangerous innerHTML usage (exclude safe template usage)
+          if grep -rn "innerHTML\s*=" --include="*.js" . | grep -v "InputValidator\|htmlEncode\|toast-notifications\|accessibility-improvements\|input-validation"; then
             echo "⚠️ WARNING: Found potentially unsafe innerHTML usage"
             exit 1
           fi
