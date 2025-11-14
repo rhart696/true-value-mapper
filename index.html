@@ -955,15 +955,15 @@
                     </marker>
                 </defs>
 
-                <!-- Arrows group -->
-                <g id="arrows"></g>
-
-                <!-- Nodes group -->
+                <!-- Nodes group (drawn first, behind arrows) -->
                 <g id="nodes" role="group" aria-label="Relationship nodes">
                     <!-- Center node (You) -->
                     <circle cx="300" cy="250" r="40" class="node-circle center-node" role="img" aria-label="You - center of trust map" />
                     <text x="300" y="255" class="node-text center-text" aria-hidden="true">You</text>
                 </g>
+
+                <!-- Arrows group (drawn last, on top for clickability) -->
+                <g id="arrows"></g>
             </svg>
             </section>
         </main>
