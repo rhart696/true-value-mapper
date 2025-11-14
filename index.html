@@ -1082,6 +1082,154 @@
             z-index: 1000;
             margin-bottom: 5px;
         }
+
+        /* Improved Button Groups */
+        .button-group-compact {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .button-group-compact button {
+            padding: 8px 16px;
+            font-size: 14px;
+        }
+
+        /* Collapsible Controls */
+        .controls-collapsible {
+            transition: max-height 0.3s ease;
+            overflow: hidden;
+        }
+
+        .controls-toggle {
+            display: none;
+            width: 100%;
+            padding: 10px;
+            background: #f5f5f5;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .controls-toggle:hover {
+            background: #e0e0e0;
+        }
+
+        /* Enhanced Node Counter */
+        .node-count {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .node-count-bar {
+            flex: 1;
+            max-width: 300px;
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .node-count-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #00A8CC, #667eea);
+            transition: width 0.3s ease;
+            border-radius: 10px;
+        }
+
+        /* Mobile Improvements */
+        @media (max-width: 768px) {
+            .controls-toggle {
+                display: block;
+            }
+
+            .controls {
+                max-height: 0;
+                overflow: hidden;
+                transition: max-height 0.3s ease;
+            }
+
+            .controls.expanded {
+                max-height: 1000px;
+            }
+
+            .control-group {
+                width: 100%;
+            }
+
+            button {
+                width: 100%;
+            }
+
+            .quick-actions {
+                bottom: 20px;
+                right: 20px;
+            }
+
+            .quick-action-btn {
+                width: 50px;
+                height: 50px;
+                font-size: 20px;
+            }
+        }
+
+        /* Smooth Transitions */
+        * {
+            transition: background-color 0.2s ease;
+        }
+
+        button {
+            transition: all 0.2s ease;
+        }
+
+        /* Focus Indicators Enhanced */
+        button:focus-visible,
+        input:focus-visible,
+        .arrow-path:focus-visible {
+            outline: 3px solid #00A8CC;
+            outline-offset: 3px;
+            box-shadow: 0 0 0 6px rgba(0, 168, 204, 0.15);
+        }
+
+        /* Empty State Message */
+        .empty-state-message {
+            text-align: center;
+            padding: 40px 20px;
+            color: #666;
+        }
+
+        .empty-state-message h3 {
+            color: #2E4A8B;
+            margin-bottom: 10px;
+        }
+
+        .empty-state-message p {
+            margin-bottom: 20px;
+        }
+
+        /* Print Styles */
+        @media print {
+            .controls,
+            .quick-actions,
+            .help-button,
+            button {
+                display: none !important;
+            }
+
+            .container {
+                box-shadow: none;
+                max-width: 100%;
+            }
+
+            body {
+                background: white;
+            }
+        }
     </style>
     <!-- Toast Notifications -->
     <link rel="stylesheet" href="toast-notifications.css">
@@ -1187,7 +1335,12 @@
             </div>
         </nav>
 
-        <div class="node-count" id="nodeCount" aria-live="polite" aria-atomic="true">Relationships: 0 / 8</div>
+        <div class="node-count" id="nodeCount" aria-live="polite" aria-atomic="true">
+            <span id="nodeCountText">Relationships: 0 / 8</span>
+            <div class="node-count-bar" role="progressbar" aria-valuemin="0" aria-valuemax="8" aria-valuenow="0" aria-label="Relationship slots used">
+                <div class="node-count-fill" id="nodeCountFill" style="width: 0%"></div>
+            </div>
+        </div>
 
         <main id="main-content">
             <section id="visualization" class="visualization-container" aria-label="Trust relationship visualization">
@@ -1587,8 +1740,16 @@
         }
 
         function updateNodeCount() {
-            const nodeCountEl = document.getElementById('nodeCount');
-            nodeCountEl.textContent = `Relationships: ${relationships.length} / ${MAX_NODES}`;
+            const nodeCountText = document.getElementById('nodeCountText');
+            const nodeCountFill = document.getElementById('nodeCountFill');
+            const nodeCountBar = document.querySelector('.node-count-bar');
+            
+            nodeCountText.textContent = `Relationships: ${relationships.length} / ${MAX_NODES}`;
+            
+            // Update progress bar
+            const percentage = (relationships.length / MAX_NODES) * 100;
+            nodeCountFill.style.width = `${percentage}%`;
+            nodeCountBar.setAttribute('aria-valuenow', relationships.length);
 
             const addButton = document.getElementById('addPerson');
             const isDisabled = relationships.length >= MAX_NODES;
