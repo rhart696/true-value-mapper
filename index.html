@@ -1437,6 +1437,23 @@
             <ul id="coachingQuestionsList">
                 <!-- Dynamically populated based on map insights -->
             </ul>
+            <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #c8e6c9;">
+                <strong>💡 Pro Tip:</strong> Use these questions to guide reflection and identify actionable steps for relationship building.
+            </div>
+        </section>
+
+        <!-- Keyboard Shortcuts Info -->
+        <section id="keyboardShortcuts" class="coaching-tips" role="region" aria-labelledby="shortcuts-heading" style="display: none; background: #e3f2fd; border-left-color: #2196f3;">
+            <h4 id="shortcuts-heading">
+                <span aria-hidden="true">⌨️</span> Keyboard Shortcuts
+            </h4>
+            <ul style="list-style: none; padding-left: 0;">
+                <li style="margin: 8px 0;"><kbd style="background: #f5f5f5; padding: 2px 8px; border-radius: 3px; border: 1px solid #ddd;">Enter</kbd> - Add person (when typing name)</li>
+                <li style="margin: 8px 0;"><kbd style="background: #f5f5f5; padding: 2px 8px; border-radius: 3px; border: 1px solid #ddd;">Tab</kbd> - Navigate between connections</li>
+                <li style="margin: 8px 0;"><kbd style="background: #f5f5f5; padding: 2px 8px; border-radius: 3px; border: 1px solid #ddd;">Space</kbd> / <kbd style="background: #f5f5f5; padding: 2px 8px; border-radius: 3px; border: 1px solid #ddd;">Enter</kbd> - Change trust level</li>
+                <li style="margin: 8px 0;"><kbd style="background: #f5f5f5; padding: 2px 8px; border-radius: 3px; border: 1px solid #ddd;">?</kbd> - Open help</li>
+                <li style="margin: 8px 0;"><kbd style="background: #f5f5f5; padding: 2px 8px; border-radius: 3px; border: 1px solid #ddd;">Esc</kbd> - Close modals</li>
+            </ul>
         </section>
 
         <section class="info-panel" role="region" aria-labelledby="how-to-use-heading">
@@ -1466,11 +1483,17 @@
             <div class="quick-action-item" role="menuitem" onclick="toggleCoachingTips()" tabindex="0">
                 <span aria-hidden="true">🎯</span> Coaching Tips
             </div>
+            <div class="quick-action-item" role="menuitem" onclick="toggleKeyboardShortcuts()" tabindex="0">
+                <span aria-hidden="true">⌨️</span> Keyboard Shortcuts
+            </div>
             <div class="quick-action-item" role="menuitem" onclick="exportToJSON()" tabindex="0">
                 <span aria-hidden="true">📥</span> Export Data
             </div>
             <div class="quick-action-item" role="menuitem" onclick="showHelpModal()" tabindex="0">
                 <span aria-hidden="true">❓</span> Help
+            </div>
+            <div class="quick-action-item" role="menuitem" onclick="window.print()" tabindex="0">
+                <span aria-hidden="true">🖨️</span> Print Map
             </div>
         </div>
     </div>
@@ -2735,6 +2758,25 @@
                 panel.style.display = 'none';
                 if (window.a11yManager) {
                     window.a11yManager.announce('Coaching tips panel closed', 'polite');
+                }
+            }
+            closeQuickActions();
+        }
+
+        /**
+         * Toggle keyboard shortcuts panel visibility
+         */
+        function toggleKeyboardShortcuts() {
+            const panel = document.getElementById('keyboardShortcuts');
+            if (panel.style.display === 'none') {
+                panel.style.display = 'block';
+                if (window.a11yManager) {
+                    window.a11yManager.announce('Keyboard shortcuts panel opened', 'polite');
+                }
+            } else {
+                panel.style.display = 'none';
+                if (window.a11yManager) {
+                    window.a11yManager.announce('Keyboard shortcuts panel closed', 'polite');
                 }
             }
             closeQuickActions();
